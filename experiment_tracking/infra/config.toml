@@ -1,0 +1,13 @@
+version = 0.1
+
+[default.global.parameters]
+stack_name = "mlops-stack"
+
+[default.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+s3_bucket = "mlops-serverless"
+s3_prefix = "infra"
+region = "eu-west-3"
+[default.build.parameters]
+cached = true
+parallel = true

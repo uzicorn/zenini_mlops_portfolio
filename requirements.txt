@@ -1,0 +1,8 @@
+sqlalchemy
+python-dotenv
+pandas
+scikit-learn
+mlflow==2.17.2
+psycopg2-binary
+aws-sam-cli
+fastapi[standard]

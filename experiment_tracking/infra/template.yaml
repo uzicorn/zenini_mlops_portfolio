@@ -1,0 +1,86 @@
+Transform: AWS::Serverless-2016-10-31
+Description: ingestion Stack
+
+Parameters:
+  LatestAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+  
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet ID for the EC2 instance
+
+  SecurityGroupIds:
+    Type: List<AWS::EC2::SecurityGroup::Id>
+    Description: Security group IDs for the EC2 instance
+
+  InfraBucket:
+    Type: String
+    Description: S3 bucket containing infrastructure resources (EC2 init scripts)
+
+  ArtifactsBucket:
+    Type: String
+    Description: S3 bucket for ML artifacts
+
+  KeyName:
+    Type: String
+    Description: Security Key Name to access the EC2 instance
+
+Resources:
+  EC2InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: S3AccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:ListBucket
+                  - s3:PutObject
+                Resource:
+                  - !Sub arn:aws:s3:::${ArtifactsBucket}
+                  - !Sub arn:aws:s3:::${ArtifactsBucket}/*
+                  - !Sub arn:aws:s3:::${InfraBucket}/ec2-init.sh
+
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref EC2InstanceRole
+
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.micro
+      SubnetId: !Ref SubnetId
+      SecurityGroupIds: !Ref SecurityGroupIds
+      KeyName: !Ref KeyName
+      ImageId: !Ref LatestAmiId
+      IamInstanceProfile: !Ref EC2InstanceProfile
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          # load and run init script (hide RDS secrets) 
+          aws s3 cp s3://${InfraBucket}/ec2-init.sh .
+          sudo bash ec2-init.sh
+
+Outputs:
+  MlFlowUrl:
+    Description: Browse this link to access the MlFlow server hostedin EC2 
+    Value: !Sub 'http://${EC2Instance.PublicIp}:5000'
+  ReplaceEnv:
+    Description: Environnement variable setting
+    Value: !Sub 'Set EC2_PUBLIC_URL to ${EC2Instance.PublicIp}'
+  PublicIP:
+    Description: Access EC2 instance by running
+    Value: !Sub 'make connect_ec2'
