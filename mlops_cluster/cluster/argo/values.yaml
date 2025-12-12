@@ -1,0 +1,14 @@
+# I have issues declaring a global artifact repo here :-(
+# Curious Error :
+  # executing "argo-workflows/templates/controller/workflow-controller-config-map.yaml" at <.Values.artifactRepository.s3.accessKeySecret.key>:
+  #  nil pointer evaluating interface {}.key
+# Despite enabling SDK credential for oauth ! 
+# artifactRepository:
+#   s3:
+#     bucket: mlops-turbo
+#     endpoint: s3.amazonaws.com
+#     useSDKCreds: true  
+
+singleNamespace: true
+server:
+  authModes: ["server"]

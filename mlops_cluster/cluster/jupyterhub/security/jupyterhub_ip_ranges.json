@@ -1,0 +1,12 @@
+[
+  {
+    "IpProtocol": "tcp",
+    "FromPort": 80,
+    "ToPort": 80,
+    "IpRanges": [
+      {
+        "CidrIp": "88.187.38.138/32"
+      }
+    ]
+  }
+]

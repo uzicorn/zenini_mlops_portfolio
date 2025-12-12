@@ -1,0 +1,4 @@
+hub:
+  db:
+    pvc:
+      storageClassName: gp3

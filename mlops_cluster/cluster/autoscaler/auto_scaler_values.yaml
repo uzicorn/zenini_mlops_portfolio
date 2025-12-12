@@ -1,0 +1,16 @@
+autoDiscovery:
+  clusterName: my-eks-cluster
+  tags:
+    - k8s.io/cluster-autoscaler/enabled
+awsRegion: eu-west-3
+rbac:
+  serviceAccount:
+    create: true
+    name: cluster-autoscaler
+resources:
+  limits:
+    cpu: 100m
+    memory: 300Mi
+  requests:
+    cpu: 100m
+    memory: 300Mi

@@ -1,0 +1,31 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: my-eks-cluster
+  region: eu-west-3
+  version: "1.34"
+
+addons:
+  - name: aws-ebs-csi-driver
+    version: latest
+  - name: eks-pod-identity-agent
+    version: latest
+
+addonsConfig:
+  autoApplyPodIdentityAssociations: true
+  
+managedNodeGroups:
+  - name: dev-ng-1
+    instanceType: t3.medium
+    desiredCapacity: 1
+    minSize: 1
+    maxSize: 3
+    volumeSize: 20
+    volumeType: gp3
+    ssh:
+      allow: true
+      publicKeyName: test-key-pair
+    iam:
+      withAddonPolicies:
+        autoScaler: true
