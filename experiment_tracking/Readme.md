@@ -29,7 +29,7 @@ Le projet est composé des éléments suivants :
 - Un module d'entraînement de modèles ML, intégrant **MLflow** pour le logging.
 - Une WebApp de tracking basée sur **FastAPI**, dédiée aux data scientists pour visualiser et interagir avec les expériences en temps réel.
   
-![alt text](experiment_tracking/readme_images/global_project.png)
+![alt text](readme_images/global_project.png)
 
 ### Screenshots 
 
