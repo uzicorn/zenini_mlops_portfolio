@@ -2,8 +2,7 @@
 
 ## Description du projet
 Je suis Data engineer spécialisé ELT/ETL et business analytics depuis 3 ans, je m'oriente en Machine learning Operations / IA Engineer.
-
-Ce projet vise à démontrer mes compétences en **`experiment tracking`** au vue d'une candidature spontanée.
+Ce projet vise à démontrer mes compétences en **`experiment tracking`** au vue d'une candidature.
 
 Il démontre mes expertises en :
 - Déploiement automatisé d'un serveur d'*experiment tracking* dans le cloud avec **MLflow**.
@@ -335,16 +334,5 @@ ZENINI SALIM
 zenini.salim@gmail.com  
 07 56 13 48 52
 Created as a portfolio project to demonstrate MLOps fundamentals on MLflow and AWS.
-
-### Qui suis-je ? 
-Je suis data engineer avec 3 ans d’expérience. Je dispose d’un double diplôme en physique fondamentale et Data engineering (Bac+5). Je travaille à mon compte depuis février 2025.
-
-Je suis spécialisé en ELT, data warehousing, data pipelines, déploiement d’architectures d’ingestion, orchestration, dockerisation, etc. Je dispose de la certification AWS Data Engineer Associate. J’ai accompagné plusieurs startups dans la mise en place et la maintenance de leurs architectures data ainsi que dans leurs projets analytics.
-
-Je cherche aujourd’hui à m’orienter **vers le domaine du MLOps** : ingestion de données pour l'entraînement d’IA, orchestration de modèles et gestion de cycle de vie. Pour cela, j’ai besoin de monter en compétence en Pyspark, MLFlow (ou équivalent), Databricks, Models lifecycle etc., le tout dans des conditions réelles et en contact avec les data scientists.
-
-Je propose à ce titre mes services en tant que consultant Data Engineer / MLOps à un tarif journalier (TJM) plus bas que le marché (200€/jour) pendant une durée de 6 à 8 mois. En contrepartie de ma montée en compétence MLOps, j’apporterai mon expertise en ingestion ELT/ELT, modélisation de données, orchestration de pipeline, CI/CD, scrapping, et stockage des données.
-
-Merci d'avoir lu mon portfolio, au plaisir de discuter avec vous.
 
 ZENINI SALIM
