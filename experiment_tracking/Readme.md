@@ -1,7 +1,6 @@
 # Experiment Tracking
 
 ## Description du projet
-Je suis Data engineer spécialisé ELT/ETL et business analytics depuis 3 ans, je m'oriente en Machine learning Operations / IA Engineer.
 Ce projet vise à démontrer mes compétences en **`experiment tracking`** au vue d'une candidature.
 
 Il démontre mes expertises en :
@@ -11,12 +10,9 @@ Il démontre mes expertises en :
 - Configuration, déploiement et utilisation de **MLflow** dans un contexte de data science.
 - Devops : AWS DevOps / CloudFormation 
 
-
-Pour plus de contexte sur mon parcours, consultez la section "Qui suis-je ?" en fin de ce README.
-
 ## Objectif du Projet
 
-Ce projet vise à illustrer un flux complet d'*experiment tracking* en MLOps, en simulant un environnement de production où plusieurs data scientists travaillent ensemble. 
+Ce projet vise à illustrer un workflow complet d'*experiment tracking* en MLOps, en simulant un environnement de production où plusieurs data scientists travaillent ensemble. 
 
 Chaque data scientist est en mesure de : 
 - Déployer la stack
@@ -38,22 +34,22 @@ Le projet est composé des éléments suivants :
 ### Screenshots 
 
 **Stack déployée**
-![alt text](experiment_tracking/readme_images/cloud_formation.png)
+![alt text](readme_images/cloud_formation.png)
 
 **connexion au EC2**
-![alt text](experiment_tracking/readme_images/connect_ec2.png)
+![alt text](readme_images/connect_ec2.png)
 
 **Ingestion**
-![alt text](experiment_tracking/readme_images/ingestion.png)
+![alt text](readme_images/ingestion.png)
 
 **Training**
-![alt text](experiment_tracking/readme_images/training.png)
+![alt text](readme_images/training.png)
 
 **Tracker / runs data**
-![alt text](experiment_tracking/readme_images/tracker_1.png)
+![alt text](readme_images/tracker_1.png)
 
 **Tracker / datasource**
-![alt text](experiment_tracking/readme_images/tracker_2.png)
+![alt text](readme_images/tracker_2.png)
 
 
 ## Repository:
