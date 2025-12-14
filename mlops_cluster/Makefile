@@ -1,17 +1,31 @@
 .ONESHELL:
 
+# Global variables
 CLUSTER_CONFIG_PATH=cluster/cluster.yaml
+
 KEYNAME=/home/uzicorn/code/mlops/experiment_tracking/secret/test-key-pair.pem
+
 AUTOSCALER_VALUES_PATH=cluster/autoscaler/auto_scaler_values.yaml
+
 JH_VALUES_PATH=cluster/jupyterhub/values.yaml
 JH_NAMESPACE=jupyterhub
+
 ARGO_NAMESPACE=argo
 ARGO_VALUES_PATH=cluster/argo/values.yaml
 
-deploy_cluster:
+ecr_repo_name=mlops_poc
+
+IRIS_NAMESPACE=iris
+IRIS_VALUES_PATH=cluster/argo/workflows/iris.yaml
+#----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+create_cluster:
 	eksctl create cluster -f $(CLUSTER_CONFIG_PATH)
 	kubectl apply -f gp3_storage_class.yaml
 	kubectl delete storageclass gp2
+
+update_node_group:
+	eksctl update nodegroup -f $(CLUSTER_CONFIG_PATH)
 
 list_ec2:
 	awsv2 ec2 describe-instances \
@@ -25,7 +39,7 @@ list_ec2:
 		--output yaml
 
 connect_ec2:
-	ssh -i $(KEYNAME) ec2-user@35.180.66.237
+	ssh -i $(KEYNAME) ec2-user@51.44.241.164
 
 list_nodes:
 	kubectl get nodes -o wide
@@ -62,7 +76,8 @@ release_jupyterhub:
 		--create-namespace \
 		--namespace $(JH_NAMESPACE) \
 		--values $(JH_VALUES_PATH)
-	sleep 3 
+#   Let the pods run before restricting IP (Not fit for production, 3s are arbitrary)
+	sleep 3
 	$(MAKE) restrict_jupyter_ips
 
 release_argo:
@@ -80,3 +95,51 @@ argo_connect_server:
 
 argo_create_token:
 	bash cluster/argo/security/token_generator.sh
+
+release_iris:
+#   AWS-ECR variables 
+#	(ecr_repo_name is a make variable, not shell)
+	tag=latest
+	account_id=$$(awsv2 sts get-caller-identity --query 'Account' --output text)
+	endpoint=$$account_id.dkr.ecr.eu-west-3.amazonaws.com
+	image_name=$$endpoint/$(ecr_repo_name)
+
+#   Docker authentication  
+	echo - Docker authentication ...
+	awsv2 ecr get-login-password | docker login --username AWS --password-stdin $$endpoint
+
+#	Update/Create kube secret "ecr-pull-secret"
+	echo - Updating ecr-pull-secret
+	kubectl delete secret generic ecr-pull-secret -n iris --ignore-not-found=true
+	kubectl create secret generic ecr-pull-secret -n iris \
+		--from-file=.dockerconfigjson="/home/uzicorn/.docker/config.json" \
+		--type=kubernetes.io/dockerconfigjson
+
+#   Build and tag local image
+	echo - Building iris image locally 
+	docker build -q -t $$image_name:$$tag cluster/iris/.
+#   Push to ECR
+	echo - Pushing iris image to ecr repo : $(ecr_repo_name)
+	docker push $$image_name:$$tag
+#	Helm release : Container uses ECR image and ecr-pull-secret credentials
+	echo - Helm release ...  
+	repository=$$account_id.dkr.ecr.eu-west-3.amazonaws.com/$(ecr_repo_name)
+	helm upgrade -n $(IRIS_NAMESPACE) --create-namespace --install iris-release ./cluster/iris --set image.repository=$$repository
+#   Cleanup
+	echo - Cleaning local docker repository
+	echo - Deleting $$image_name:$$tag
+	docker rmi $$image_name
+
+
+#--------------
+# dev helpers |
+#--------------
+delete_ecr_images:
+	echo - Deleting all images in ECR repository $(ecr_repo_name)
+	awsv2 ecr list-images --repository-name $(ecr_repo_name) --query imageIds | jq . > images_to_delete
+	if [ "$$(jq length images_to_delete)" = 0 ]; then
+		echo "There are no images in the repo"
+	else
+		awsv2 ecr batch-delete-image --repository-name $(ecr_repo_name) --image-ids file://images_to_delete
+	fi
+	rm images_to_delete
