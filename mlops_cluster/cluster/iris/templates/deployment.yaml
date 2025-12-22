@@ -12,6 +12,7 @@ spec:
       labels:
         app: {{ .Release.Name }}
     spec:
+      serviceAccountName: iris-sa
       containers:
         - name: iris
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -19,3 +20,7 @@ spec:
             - containerPort: 80
       imagePullSecrets:
       - name: ecr-pull-secret
+
+# ---- > correct variable template
+# ---- > Dry run
+# ---- > Deploy

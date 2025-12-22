@@ -1,6 +1,7 @@
-sqlalchemy
-python-dotenv
-pandas
-scikit-learn
+# sqlalchemy
+# python-dotenv
+# pandas
+# scikit-learn
+# psycopg2-binary
 mlflow
-psycopg2-binary
+boto3

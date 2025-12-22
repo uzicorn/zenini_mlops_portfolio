@@ -2,3 +2,5 @@ replicaCount: 1
 image:
   repository: "{{ .Values.image.repository }}"
   tag: "latest"
+aws:
+  account_id: "{{ .Values.aws.account_id }}"
