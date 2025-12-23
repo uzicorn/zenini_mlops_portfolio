@@ -64,13 +64,24 @@ connect_ec2:
 list_nodes:
 	kubectl get nodes -o wide
 
+namespace :=
 list_pods:
+# 	Usage : make list_pods
+#   	    make list_pods namespace=argo
 	clear
-	kubectl get pods -A \
+	kubectl get pods $$(if [ $(namespace) = "" ]; then echo "-A" ;else echo "-n $(namespace)"; fi) \
 	-o custom-columns=\
-	RELEASE_NAME:.metadata.labels.app\\.kubernetes\\.io/instance,NAMESPACE:.metadata.namespace,POD_NAME:.metadata.name,\
-	CREATED:.metadata.creationTimestamp,IP:.status.podIP,NODE:.spec.nodeName,READY:.status.containerStatuses[*].ready,\
-	STATUS:.status.phase | python3 pods_format.py
+	"\
+		RELEASE_NAME:.metadata.labels.app\\.kubernetes\\.io/instance,\
+		NAMESPACE:.metadata.namespace,\
+		POD_NAME:.metadata.name,\
+		CREATED:.metadata.creationTimestamp,\
+		IP:.status.podIP,\
+		NODE:.spec.nodeName,\
+		READY:.status.containerStatuses[*].ready,\
+		STATUS:.status.phase" \
+	| python3 pods_format.py
+
 
 list_stacks:
 	awsv2 cloudformation describe-stacks --query 'Stacks[].[StackName, Description, StackStatus]' | jq .
@@ -129,6 +140,10 @@ argo_create_token:
 # ---------------
 # ├──IRIS release
 # ---------------
+
+# Attempt to fully deploy a custom chart representing a machine learning app (module)
+# The deployed app is the exact replica of the portfolio's ./experiment_tracking but now integrated in an EKS cluster
+# with custom AWS-policies, compute and memory allocation and integrations with various AWS ressources (EKS, S3, AWS-Secrets, lambda) 
 create-iris-policy:
 	echo - Deleting iris iam policy if it exists
 	account_id=$$(awsv2 sts get-caller-identity --query 'Account' --output text)
@@ -215,6 +230,15 @@ uninstall-iris:
 	account_id=$$(awsv2 sts get-caller-identity --query 'Account' --output text)
 	awsv2 iam delete-policy --policy-arn arn:aws:iam::$$account_id:policy/iris-policy \
 		2>/dev/null	|| echo iris policy does not exists
+
+update_iris:
+	echo - Update release : IRIS
+	account_id=$$(awsv2 sts get-caller-identity --query 'Account' --output text)
+	repository=$$account_id.dkr.ecr.eu-west-3.amazonaws.com/$(ecr_repo_name)
+	helm upgrade -n $(IRIS_NAMESPACE) \
+		--install iris-release ./cluster/iris \
+		--set image.repository=$$repository \
+		--set aws.account-id=$$account_id
 #					                       ---------------
 #------------------------------------------| Dev Helpers |----------------------------------------------------------
 #					                       ---------------

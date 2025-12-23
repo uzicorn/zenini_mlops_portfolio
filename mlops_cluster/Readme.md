@@ -7,4 +7,4 @@ Déploiement d'un cluster sur AWS-EKS faisant intervenir les ressources suivante
 - Dask 
 - FluxCD
 
-**Le Readme complet arrive** 
+**Le Readme complet arrive** Pour le moment, le makefile représente assez fidèlement l'avancement du POC.  
