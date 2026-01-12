@@ -272,4 +272,34 @@ kill-release:
 	else 
 		eksctl delete iamserviceaccount --namespace $(namespace) --name iris-sa --cluster $(CLUSTER_NAME)
 	fi
-	
+
+hard-delete-all-ressources:
+# Delete custom IAM policy (iris-policy)
+	@echo "Deleting iris IAM policy if it exists"
+	account_id=$$(awsv2 sts get-caller-identity --query 'Account' --output text)
+	awsv2 iam delete-policy --policy-arn arn:aws:iam::$$account_id:policy/iris-policy 2>/dev/null || echo "iris policy does not exist"
+
+# Delete IAM service accounts across known namespaces
+	- eksctl delete iamserviceaccount --namespace iris --name iris-sa --cluster $(CLUSTER_NAME) --wait --approve
+	- eksctl delete iamserviceaccount --namespace $(JH_NAMESPACE) --name iris-sa --cluster $(CLUSTER_NAME) --wait --approve 2>/dev/null || true
+
+# Delete ECR repository and all images (storage cost source)
+	@echo "Deleting ECR repository $(ecr_repo_name)"
+	awsv2 ecr delete-repository --repository-name $(ecr_repo_name) --force 2>/dev/null || echo "ECR repo does not exist or already deleted"
+
+# Uninstall Helm releases and delete namespaces (deletes pods, services, etc.)
+	- helm uninstall iris-release -n iris 2>/dev/null || true
+	- kubectl delete namespace iris --ignore-not-found=true
+	- helm uninstall jupyterhub-release -n $(JH_NAMESPACE) 2>/dev/null || true
+	- kubectl delete namespace $(JH_NAMESPACE) --ignore-not-found=true
+	- helm uninstall argo-release -n $(ARGO_NAMESPACE) 2>/dev/null || true
+	- kubectl delete namespace $(ARGO_NAMESPACE) --ignore-not-found=true
+	- helm uninstall auto-scaler-release -n kube-system 2>/dev/null || true
+
+# Delete custom storage class if present
+	- kubectl delete storageclass gp3 --ignore-not-found=true
+	- kubectl delete storageclass gp2 --ignore-not-found=true
+
+# Final: Delete EKS cluster and all associated resources (node groups, load balancers, etc.)
+	@echo "Deleting EKS cluster $(CLUSTER_NAME) - this may take 10-15 minutes"
+	eksctl delete cluster --name $(CLUSTER_NAME) --wait --disable-nodegroup-eviction=true
