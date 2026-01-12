@@ -35,7 +35,7 @@ This project is a small MLOps proof of concept that provisions an EKS cluster an
 - **Deploy Iris app**: `make release_iris` to build the image, push to ECR, create IAM resources, and deploy the chart.
 - **Tear down**: `make hard-delete-all-ressources` to remove Helm releases, IAM resources, ECR repo, and the EKS cluster.
 
-## Structure 
+## Structure (Tree) 
 ```bash
 .
 ├── cluster
